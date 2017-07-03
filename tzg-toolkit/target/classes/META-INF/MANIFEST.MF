@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Built-By: wyf
+Built-timestamp: 2017-07-03T01:09:49Z
+Version: 1.2.4-SNAPSHOT
+Build-Jdk: 1.8.0_111
+Created-By: Maven Integration for Eclipse
+revision: 
+

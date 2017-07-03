@@ -1,0 +1,92 @@
+/*package com.tzg.tool.kit.http;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
+import org.apache.commons.httpclient.methods.PostMethod;
+
+*//**
+ * 数据抛给银行
+ * 
+ * @author tzg
+ * 
+ *//*
+public class HttpPost {
+    *//**
+     * 通过HTTP发送数据到服务器
+     * @param url       -- 目标地址
+     * @param args      -- 请求参数
+     * @return
+     * @throws Exception
+     * <br>-----------------------------------------------------<br>
+     * @author	 flotage
+     * @create 	 2012-8-16 下午03:45:44  
+     * @note
+     *//*
+    public static byte[] doPost(String url, HttpParm... args) throws Exception {
+        return doPost(url, "UTF-8", args);
+    }
+
+    *//**
+     * 通过HTTP发送数据到服务器
+     * @param url      -- 目标地址
+     * @param encode   -- HTTP请求字符集
+     * @param args     -- 请求参数
+     * @return
+     * @throws Exception
+     * <br>-----------------------------------------------------<br>
+     * @author	 flotage
+     * @create 	 2012-8-16 下午03:46:31  
+     * @note
+     *//*
+    public static byte[] doPost(String url, String encode, HttpParm... args) throws Exception {
+
+        HttpClient client = new HttpClient();
+        client.getParams().setSoTimeout(60000);
+        PostMethod method = new PostMethod(url);
+
+        // 设置字符编码集
+        method.getParams().setContentCharset(encode);
+        for (HttpParm parm : args) {
+            method.addParameter(parm.getName(), parm.getValue());
+        }
+
+        int statusCode = client.executeMethod(method);
+        if (statusCode != HttpStatus.SC_OK) {
+            // ...错误处理...
+            return null;
+        }
+
+        return method.getResponseBody();
+    }
+
+    *//**
+     * 发送POST指令gbk
+     * @param url
+     * @param buf
+     * @return
+     * @throws Exception
+     *//*
+    public static String postBufferGbk(String url, String buf) throws Exception {
+        return new String(postBufferGbk(url, buf.getBytes("GBK")), "GBK");
+    }
+
+    public static byte[] postBufferGbk(String url, byte[] buf) throws Exception {
+        HttpClient httpClient = new HttpClient();
+        PostMethod post = new PostMethod(url);
+
+        post.setRequestHeader("Content-Type", "application/xml; charset=gbk");
+        post.setRequestEntity(new ByteArrayRequestEntity(buf));
+
+        try {
+            httpClient.executeMethod(post);
+            return post.getResponseBody();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new Exception("发送数据失败：" + ex.getMessage());
+        } finally {
+            post.releaseConnection();
+        }
+    }
+}
+*/

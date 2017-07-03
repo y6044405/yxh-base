@@ -1,0 +1,26 @@
+package com.tzg.tool.kit.tuple;
+/**
+ * 
+ * Filename:    MapTuple.java  
+ * Description: Map二元组 :两个元素的元组，用于在一个方法里返回两种类型的值.可以继承此类任意扩展三元组、四元组... 
+ * Copyright:   Copyright (c) 2015-2018 All Rights Reserved.
+ * Company:     tzg.cn Inc.
+ * @author:     heyiwu 
+ * @version:    1.0  
+ * Create at:   2016年3月21日 上午10:35:38  
+ *
+ */
+public class MapTuple<K, V> {
+    public final K key;
+    public final V value;
+
+    public MapTuple(K key, V value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static <K, V> MapTuple map(K key, V value) {
+        return new MapTuple<K, V>(key, value);
+    }
+}

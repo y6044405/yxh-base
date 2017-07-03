@@ -1,0 +1,129 @@
+package com.tzg.tool.kit.security;
+/*package com.tzg.tool.kit.security;
+
+import java.math.BigInteger;
+import java.security.Key;
+import java.security.KeyFactory;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
+import java.security.spec.ECFieldF2m;
+import java.security.spec.ECParameterSpec;
+import java.security.spec.ECPoint;
+import java.security.spec.ECPrivateKeySpec;
+import java.security.spec.ECPublicKeySpec;
+import java.security.spec.EllipticCurve;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+
+import javax.crypto.Cipher;
+import javax.crypto.NullCipher;
+
+import sun.security.ec.ECKeyFactory;
+import sun.security.ec.ECPrivateKeyImpl;
+import sun.security.ec.ECPublicKeyImpl;
+
+*//**
+ * 
+ * Filename:    ECCUtil.java  
+ * Description: ECC安全加密组件：<br>
+ * ECC(Elliptic Curves Cryptography)，椭圆曲线密码编码学，是目前已知的公钥体制中，对每比特所提供加密强度最高的一种体制。
+ * 在jdk1.5后加入支持，目前可能只有javacard支持完整的算法实现，j2se中没有相应的加密解密支持，仅仅完成密钥的生成与解析,
+ * 官方或非官方的相关资料非常少，而且想要获得ECC算法实现，需要调用硬件完成加密/解密,缺乏硬件设备，无法尝试  
+ * Copyright:   Copyright (c) 2012-2013 All Rights Reserved.
+ * Company:     tzg-soft.com Inc.
+ * @author:     heyiwu 
+ * @version:    1.0  
+ * Create at:   2013-11-6 上午11:23:13  
+ *  
+ * Modification History:  
+ * Date         Author      Version     Description  
+ * ------------------------------------------------------------------  
+ * 2013-11-6      heyiwu      1.0         1.0 Version  
+ *
+ */
+/*
+public class ECCUtil extends SignatureUtil {
+
+    *//**
+     * Chipher、Signature、KeyPairGenerator、KeyAgreement、SecretKey均不支持EC算法
+     * 确保程序能够正常执行，使用了NullCipher类模拟实现
+     */
+/*
+    public static final String ECC = "EC";
+
+    *//** 
+     * 用公钥加密 
+     * @param data 
+     * @param privateKey 
+     * @return 
+     * @throws Exception 
+     */
+/*
+    public static byte[] encryptECC(byte[] data, String privateKey) throws Exception {
+        // 对公钥解密  
+        byte[] keyBytes = decodeBase64(privateKey);
+        // 取得公钥  
+        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = ECKeyFactory.INSTANCE;
+        ECPublicKey pubKey = (ECPublicKey) keyFactory.generatePublic(x509KeySpec);
+        ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(pubKey.getW(), pubKey.getParams());
+        // 对数据加密  
+        Cipher cipher = new NullCipher();
+        // Cipher.getInstance(ALGORITHM, keyFactory.getProvider());  
+        cipher.init(Cipher.ENCRYPT_MODE, pubKey, ecPublicKeySpec.getParams());
+        return cipher.doFinal(data);
+    }
+
+    *//** 
+     * 用私钥解密 
+     * @param data 
+     * @param key 私钥
+     * @return 
+     * @throws Exception 
+     */
+/*
+    public static byte[] decryptECC(byte[] data, String key) throws Exception {
+        byte[] keyBytes = decodeBase64(key);
+        // 取得私钥  
+        PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = ECKeyFactory.INSTANCE;
+        ECPrivateKey priKey = (ECPrivateKey) keyFactory.generatePrivate(pkcs8KeySpec);
+        ECPrivateKeySpec ecPrivateKeySpec = new ECPrivateKeySpec(priKey.getS(), priKey.getParams());
+        // 对数据解密  
+        Cipher cipher = new NullCipher();
+        // Cipher.getInstance(ALGORITHM, keyFactory.getProvider());  
+        cipher.init(Cipher.DECRYPT_MODE, priKey, ecPrivateKeySpec.getParams());
+        return cipher.doFinal(data);
+    }
+
+    *//** 
+     * 初始化密钥 
+     * @return 密钥数组,0公钥 1密钥
+     * @throws Exception 
+     */
+/*
+    public static Key[] initECCKey() throws Exception {
+        BigInteger x1 = new BigInteger("2fe13c0537bbc11acaa07d793de4e6d5e5c94eee8", 16);
+        BigInteger x2 = new BigInteger("289070fb05d38ff58321f2e800536d538ccdaa3d9", 16);
+
+        ECPoint g = new ECPoint(x1, x2);
+
+        BigInteger n = new BigInteger("5846006549323611672814741753598448348329118574063", 10);
+        int h = 2;
+        int m = 163;
+        int[] ks = { 7, 6, 3 };
+        ECFieldF2m ecField = new ECFieldF2m(m, ks);
+        // y^2+xy=x^3+x^2+1  
+        BigInteger a = new BigInteger("1", 2);
+        BigInteger b = new BigInteger("1", 2);
+        EllipticCurve ellipticCurve = new EllipticCurve(ecField, a, b);
+        ECParameterSpec ecParameterSpec = new ECParameterSpec(ellipticCurve, g, n, h);
+        // 公钥  
+        ECPublicKey publicKey = new ECPublicKeyImpl(g, ecParameterSpec);
+        BigInteger s = new BigInteger("1234006549323611672814741753598448348329118574063", 10);
+        // 私钥  
+        ECPrivateKey privateKey = new ECPrivateKeyImpl(s, ecParameterSpec);
+        return new Key[] { publicKey, privateKey };
+    }
+}
+*/

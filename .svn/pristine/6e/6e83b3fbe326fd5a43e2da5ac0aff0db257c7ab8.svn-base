@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project default="xjc-compile" basedir=".">
+    <property name="src.dir" location="src/test/java" />
+    <property name="lib.dir" location="d:\repo" />
+    <property name="xml-schema.dir" location="src/test/resources/dataFile" />
+    <property name="schema.name" value="order.xsd" />
+    <property name="package" value="com.golden.ex.framework.core.mapper" />
+    <path id="classpath">
+        <fileset dir="${lib.dir}" includes="*.jar" />
+    </path>
+    <taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask"  classpathref="classpath" />
+    <target name="xjc-compile">
+        <echo message="Build Jaxb Class from Schema" />
+        <xjc schema="${xml-schema.dir}/${schema.name}" target="${src.dir}"
+            package="${package}" />
+    </target>
+</project>

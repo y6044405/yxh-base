@@ -1,0 +1,901 @@
+package com.tzg.tool.kit.string;
+
+import java.io.UnsupportedEncodingException;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.base.CaseFormat;
+
+public class StringUtil extends StringUtils {
+    //script的正则表达式{或<script[^>]*?>[\\s\\S]*?<\\/script>
+    private static final String SCRIPTREGEX = "<[\\s]*?script[^>]*?>[\\s\\S]*?<[\\s]*?\\/[\\s]*?script[\\s]*?>|\\);alert\\(.*\\).*";
+    //HTML标签的正则表达式
+    private static final String HTMLREGEX   = "<[^>]+>";
+    //style的正则表达式{或<style[^>]*?>[\\s\\S]*?<\\/style>
+    private static final String STYLEREGEX  = "<[\\s]*?style[^>]*?>[\\s\\S]*?<[\\s]*?\\/[\\s]*?style[\\s]*?>";
+
+    /**
+     * 获取银行返回的值
+     * 
+     * @param sBuf
+     *            报文
+     * @param sName
+     *            名称
+     * @return
+     */
+    public static String getParm(String sBuf, String sName) {
+        return getParm(sBuf, sName, "&");
+    }
+
+    public static String getParm(String sBuf, String sName, String sTag) {
+        String tagName = sName + "=";
+        if (sBuf.indexOf(tagName) < 0)
+            return null;
+        String strlist[] = sBuf.split(sTag);
+        for (int i = 0; i < strlist.length; i++) {
+            if (strlist[i].indexOf(tagName) >= 0) {
+                return strlist[i].substring(tagName.length());
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 得到一个n位的随机数 第一位不能为0
+     * 
+     * @param n
+     *            位数
+     * @return
+     */
+    public static String getRand(int n) {
+        Random rnd = new Random();
+        String pass = "0";
+        int x = rnd.nextInt(10);
+        /** 过滤第一位为0 */
+        while (x == 0) {
+            x = rnd.nextInt(10);
+        }
+        pass = String.valueOf(x);
+        for (int i = 1; i < n; i++) {
+            pass = pass + String.valueOf(rnd.nextInt(10));
+        }
+        return pass;
+    }
+
+    /**
+     * 填充字符
+     * 
+     * @param source
+     *            源字符串
+     * @param fillChar
+     *            填充字符
+     * @param len
+     *            填充到的长度
+     * @return 填充后的字符串
+     */
+    public static String fillLeft(String source, char fillChar, long len) {
+        StringBuffer ret = new StringBuffer();
+        if (null == source)
+            ret.append("");
+        if (StringUtils.length(source) > len) {
+            ret.append(source);
+            return ret.toString();
+        }
+        long slen = source.length();
+        while (ret.toString().length() + slen < len) {
+            ret.append(fillChar);
+        }
+        ret.append(source);
+        return ret.toString();
+    }
+
+    /**
+     * 重复字符
+     * 
+     * @param len
+     *            -- 重复次数
+     * @param repStr
+     *            -- 被重复的字符
+     * @return
+     */
+    public static String fillStr(int len, String repStr) {
+        if (len <= 0) {
+            return repStr;
+        }
+        StringBuilder ret = new StringBuilder();
+        for (int i = 0; i < len; i++) {
+            ret.append(repStr);
+        }
+        return ret.toString();
+    }
+
+    /**
+     * 右边填充字符
+     * 
+     * @param source
+     *            源字符串
+     * @param fillChar
+     *            填充字符
+     * @param len
+     *            填充到的长度
+     * @return 填充后的字符串
+     */
+    public static String fillRight(String source, char fillChar, int len) {
+        StringBuffer ret = new StringBuffer();
+        if (null == source)
+            ret.append("");
+        if (StringUtils.length(source) > len) {
+            ret.append(source);
+        } else {
+            ret.append(source);
+            while (ret.toString().length() < len) {
+                ret.append(fillChar);
+            }
+        }
+        return ret.toString();
+    }
+
+    public static String filterStr(String str) {
+        if (StringUtils.isBlank(str)) {
+            return str;
+        }
+        return str.replaceAll("'", "''");
+    }
+
+    /**
+     * 解码
+     * 
+     * @param str
+     * @return
+     */
+    public static String decode(String str) {
+        return decode(str, "UTF-8");
+    }
+
+    /**
+     * 解码
+     * 
+     * @param str
+     * @param encode
+     * @return
+     */
+    public static String decode(String str, String encode) {
+        try {
+            str = java.net.URLDecoder.decode(str, encode);
+        } catch (UnsupportedEncodingException e) {
+
+        }
+        return str;
+    }
+
+    /**
+     * escape 编码
+     * 
+     * @param src
+     * @return
+     */
+    public static String escape(String src) {
+        int i;
+        char j;
+        StringBuffer tmp = new StringBuffer();
+        tmp.ensureCapacity(src.length() * 6);
+        for (i = 0; i < src.length(); i++) {
+            j = src.charAt(i);
+            if (Character.isDigit(j) || Character.isLowerCase(j) || Character.isUpperCase(j))
+                tmp.append(j);
+            else if (j < 256) {
+                tmp.append("%");
+                if (j < 16)
+                    tmp.append("0");
+                tmp.append(Integer.toString(j, 16));
+            } else {
+                tmp.append("%u");
+                tmp.append(Integer.toString(j, 16));
+            }
+        }
+        return tmp.toString();
+    }
+
+    /**
+     * unescape 解码
+     * 
+     * @param src
+     * @return
+     */
+    public static String unescape(String src) {
+        StringBuffer tmp = new StringBuffer();
+        tmp.ensureCapacity(src.length());
+        int lastPos = 0, pos = 0;
+        char ch;
+        while (lastPos < src.length()) {
+            pos = src.indexOf("%", lastPos);
+            if (pos == lastPos) {
+                if (src.charAt(pos + 1) == 'u') {
+                    ch = (char) Integer.parseInt(src.substring(pos + 2, pos + 6), 16);
+                    tmp.append(ch);
+                    lastPos = pos + 6;
+                } else {
+                    ch = (char) Integer.parseInt(src.substring(pos + 1, pos + 3), 16);
+                    tmp.append(ch);
+                    lastPos = pos + 3;
+                }
+            } else {
+                if (pos == -1) {
+                    tmp.append(src.substring(lastPos));
+                    lastPos = src.length();
+                } else {
+                    tmp.append(src.substring(lastPos, pos));
+                    lastPos = pos;
+                }
+            }
+        }
+        return tmp.toString();
+    }
+
+    /**
+     * @disc 对字符串重新编码
+     * @param src
+     * @return
+     */
+    public static String isoToGB(String src) {
+        String strRet = null;
+        try {
+            strRet = new String(src.getBytes("ISO_8859_1"), "GB2312");
+        } catch (Exception e) {
+
+        }
+        return strRet;
+    }
+
+    /**
+     * @disc 对字符串重新编码
+     * @param src
+     * @return
+     */
+    public static String isoToUTF(String src) {
+        String strRet = null;
+        try {
+            strRet = new String(src.getBytes("ISO_8859_1"), "UTF-8");
+        } catch (Exception e) {
+
+        }
+        return strRet;
+    }
+
+    /**
+     * @disc 对字符串UTF-8转GBK重新编码
+     * @param src
+     * @return
+     */
+    public static String utfToGbk(String src) {
+        String strRet = null;
+        try {
+            strRet = new String(src.getBytes("ISO_8859_1"), "UTF-8");
+        } catch (Exception e) {
+
+        }
+        return strRet;
+    }
+
+    /**
+     * 获得下一个字符串
+     * 
+     * @param str
+     * @return
+     */
+    public static String getNextStr(String s) {
+        if (StringUtils.isBlank(s)) {
+            return s;
+        }
+        s = StringUtils.trim(s);
+        String[] strs = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U",
+                          "V", "W", "X", "Y", "Z" };
+        if (!ArrayUtils.contains(strs, s)) {
+            return null;
+        }
+        return strs[ArrayUtils.indexOf(strs, s) + 1];
+    }
+
+    /**
+     * 判断字符是否超过长度
+     * 
+     * @param str
+     * @param num
+     * @return 超过规定字符返回true
+     */
+    public static boolean isLen(String str, int num) {
+        if (StringUtils.isBlank(str)) {
+            return num < 0;
+        }
+        if (StringUtils.length(str) > num) {
+            return true;
+        }
+        return str.getBytes().length > num;
+    }
+
+    /**
+     * 十进制转二进制
+     * 
+     * @param i
+     *            十进制数
+     * @return
+     */
+    public static String toBinaryString(int i) {
+        return Integer.toBinaryString(i);
+    }
+
+    /**
+     * 十进制转二进制
+     * 
+     * @param i
+     *            十进制数
+     * @return
+     */
+    public static String toBinaryString(long i) {
+        return Long.toBinaryString(i);
+    }
+
+    /**
+     * 十进制转八进制
+     * 
+     * @param i
+     *            十进制数
+     */
+    public String toOctalString(int i) {
+        return Integer.toOctalString(i);
+    }
+
+    /**
+     * 十进制转八进制
+     * 
+     * @param i
+     *            十进制数
+     */
+    public String toOctalString(long i) {
+        return Long.toOctalString(i);
+    }
+
+    /**
+     * 十进制转十六进制
+     * 
+     * @param i
+     *            十进制数
+     * @return
+     */
+    public String toHexString(int i) {
+        return Integer.toHexString(i);
+    }
+
+    /**
+     * 将二进制转化为16进制字符串
+     * 
+     * @param bytes
+     *            二进制字节数组,由字符串转换而来："".getBytes(charset)
+     *            编码、加密时因操作系统实现不同会有所差异，所以转换时最好指定字符集
+     */
+    public static String toHexString(byte[] bytes) {
+        if (null == bytes || bytes.length == 0) {
+            return null;
+        }
+        int len = bytes.length;
+        StringBuilder sb = new StringBuilder(len * 2);
+        for (int n = 0; n < len; n++) {
+            String hex = (java.lang.Integer.toHexString(bytes[n] & 0XFF));
+            sb.append(((hex.length() == 1 ? "0" : "") + hex).toUpperCase());
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 十六进制字符串转化为2进制
+     * 
+     * @param hex
+     *            十六进制字符串
+     * @return
+     */
+    public static byte[] hex2byte(String hex) {
+        if (StringUtils.isBlank(hex)) {
+            return null;
+        }
+        int len = hex.length() / 2;
+        byte[] bytes = new byte[len];
+        for (int i = 0; i < len; i++) {
+            int high = Integer.parseInt(hex.substring(i * 2, i * 2 + 1), 16);
+            int low = Integer.parseInt(hex.substring(i * 2 + 1, i * 2 + 2), 16);
+            bytes[i] = (byte) (high * 16 + low);
+        }
+        return bytes;
+    }
+
+    /**
+     * 将两个ASCII字符合成一个字节； 如："EF"--> 0xEF
+     * 
+     * @param src0
+     *            byte
+     * @param src1
+     *            byte
+     * @return byte
+     */
+    public byte uniteBytes(byte src0, byte src1) {
+        byte _b0 = Byte.decode("0x" + new String(new byte[] { src0 })).byteValue();
+        _b0 = (byte) (_b0 << 4);
+        byte _b1 = Byte.decode("0x" + new String(new byte[] { src1 })).byteValue();
+        byte ret = (byte) (_b0 ^ _b1);
+        return ret;
+    }
+
+    /**
+     * 十进制转十六进制
+     * 
+     * @param i
+     *            十进制数
+     * @return
+     */
+    public String toHexString(long i) {
+        return Long.toHexString(i);
+    }
+
+    /**
+     * 二进制数转十进制数
+     * 
+     * @param s
+     *            二进制数
+     * @return
+     */
+    public int parseBinaryInt(String s) {
+        return Integer.parseInt(s, 2);
+    }
+
+    /**
+     * 二进制数转十进制数
+     * 
+     * @param s
+     *            二进制数
+     * @return
+     */
+    public long parseBinaryLong(String s) {
+        return Long.parseLong(s, 2);
+    }
+
+    /**
+     * 八进制转十进制数
+     * 
+     * @param s
+     *            八进制数
+     * @return
+     */
+    public int parseOctalInt(String s) {
+        return Integer.parseInt(s, 8);
+    }
+
+    /**
+     * 十六进制数转十进制数
+     */
+    public int parseHexInt(String s) {
+        return Integer.parseInt(s, 16);
+    }
+
+    /**
+     * 查找介于开始标记和结束标记之间的内容(任意字符包括回车、换行、制表符等)
+     * 
+     * @param start
+     *            开始标记(开始标签)
+     * @param end
+     *            结束标记(结束标签)
+     * @param content
+     *            被查找的内容
+     * @param 正则下标
+     *            ，取值从0开始，0包含开始和结束标记；1不包含开始和结束标记
+     * @return 匹配的字符串集合
+     */
+    public static List<String> findText(String start, String end, String content, int i) {
+        // 多个连续空白\\s*
+        StringBuilder builder = new StringBuilder();
+        builder.append(start);
+        builder.append("([\\s\\S]*?)");
+        builder.append(end);
+        // 任意字符(包括回车换行)\\s\\S]*?
+        return find(builder.toString(), i, content);
+    }
+
+    /**
+     * 在文本内容中查找指定内容
+     * 
+     * @param regex
+     *            正则表达式或文本
+     * @param i
+     *            正则下标,从1开始：第几个正则为要查找的内容。没有正则以纯文本来匹配查找的话
+     * @param content
+     *            文本内容
+     * @return 被查找到的文本集合
+     */
+    public static List<String> find(String regex, int i, String content) {
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(content);
+        List<String> list = new ArrayList<String>();
+        while (m.find()) {
+            try {
+                list.add((m.group(i)));
+            } catch (java.lang.IndexOutOfBoundsException e) {
+                // 下标小于0或与大于实际的正则表达式个数
+                list.add((m.group()));
+            }
+        }
+        return list;
+    }
+
+    /**
+     * 替换空格(\s)、回车(\n)、换行(\r)、制表符(\t)
+     * 
+     * @param str
+     * @return
+     */
+    public static String replaceBlank(String str) {
+        if (StringUtils.isBlank(str)) {
+            // null或空格字符串时,去空格返回
+            return StringUtils.trim(str);
+        }
+        Matcher m = Pattern.compile("\\s*|\t|\r|\n").matcher(str);
+        return m.replaceAll("");
+    }
+
+    /**
+     * 截取字符串  
+     * @param str
+     * @param start
+     * @return
+     */
+    public static String substring(String str, int start) {
+        return StringUtils.substring(str, start);
+    }
+
+    /**
+     * 截取字符串 
+     * @param str
+     * @param start
+     * @param end
+     * @return
+     */
+    public static String substring(String str, int start, int end) {
+        return StringUtils.substring(str, start, end);
+    }
+
+    /**
+     * 本地格式化
+     * 
+     * @param amt
+     *            数字
+     * @return
+     */
+    public static String format(double amt) {
+        Locale locale = new Locale("zh", "CN");
+        return format(amt, locale);
+    }
+
+    /**
+     * 格式化
+     * 
+     * @param amt
+     * @param locale
+     * @return
+     */
+    public static String format(double amt, Locale locale) {
+        NumberFormat currFmt = NumberFormat.getCurrencyInstance(locale);
+        return currFmt.format(amt);
+    }
+
+    // 根据Unicode编码完美的判断中文汉字和符号
+    private static boolean isChinese(char c) {
+        Character.UnicodeBlock ub = Character.UnicodeBlock.of(c);
+        if (ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
+            || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B
+            || ub == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION || ub == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS
+            || ub == Character.UnicodeBlock.GENERAL_PUNCTUATION) {
+            return true;
+        }
+        return false;
+    }
+
+    // 完整的判断中文汉字和符号
+    public static boolean isChinese(String strName) {
+        char[] ch = strName.toCharArray();
+        for (int i = 0; i < ch.length; i++) {
+            char c = ch[i];
+            if (isChinese(c)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // 只能判断部分CJK字符（CJK统一汉字）
+    public static boolean isChineseByREG(String str) {
+        if (str == null) {
+            return false;
+        }
+        Pattern pattern = Pattern.compile("[\\u4E00-\\u9FBF]+");
+        return pattern.matcher(str.trim()).find();
+    }
+
+    // 只能判断部分CJK字符（CJK统一汉字）
+    public static boolean isChineseByName(String str) {
+        if (str == null) {
+            return false;
+        }
+        // 大小写不同：\\p 表示包含，\\P 表示不包含
+        // \\p{Cn} 的意思为 Unicode 中未被定义字符的编码，\\P{Cn} 就表示 Unicode中已经被定义字符的编码
+        String reg = "\\p{InCJK Unified Ideographs}&&\\P{Cn}";
+        Pattern pattern = Pattern.compile(reg);
+        return pattern.matcher(str.trim()).find();
+    }
+
+    public static boolean sql_Injection(String str) {
+        if (str == null || "".equals(str)) {
+            return true;
+        }
+        String inj_str = "' and exec insert select delete update" + " count * % chr mid master truncate char declare ; or - + ,";
+        String arr[] = inj_str.split(" ");
+        for (int i = 0; i < arr.length; i++) {
+            if (str.indexOf(arr[i]) != -1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 手机号隐藏 例 ：158*****5566
+     * 
+     * @param phone
+     * @return
+     */
+    public static String hidePhone(String phone) {
+        if (phone == null || phone.length() < 3) {
+            return "";
+        }
+        return hideStr(3, 4, 4, phone);
+    }
+
+    /**
+     * 隐藏字符的显示
+     * 
+     * @param preNum
+     *            字符前端要显示的字符数
+     * @param sufNum
+     *            字符后端要显示的字符数
+     * @param str
+     * @return
+     */
+    public static String hideStr(int preNum, int sufNum, int hideNum, String str) {
+        if (str == null) {
+            return str;
+        }
+        int len = str.length();
+        if (preNum + sufNum > len) {
+            return str;
+        }
+        StringBuilder sb = new StringBuilder();
+        if (sufNum > 0) {
+            sb.append(str.substring(0, preNum)).append(creatHideChar(hideNum)).append(str.substring(len - sufNum));
+        } else {
+            sb.append(str.substring(0, preNum)).append(creatHideChar(hideNum));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 生成*字符窜
+     * 
+     * @param num
+     * @return
+     */
+    public static String creatHideChar(int num) {
+        StringBuilder sb = new StringBuilder();
+        while (num > 0) {
+            sb.append("*");
+            num--;
+        }
+        return sb.toString();
+    }
+
+    public static byte[] getBytesUtf8(String string) {
+        return org.apache.commons.codec.binary.StringUtils.getBytesUtf8(string);
+    }
+
+    /**
+     * 驼峰命名转下划线命名
+     * @author:  heyiwu 
+     * @param s
+     * @return
+     */
+    public static String camelCaseTo(String s) {
+        return camelCaseTo(s, '_');
+    }
+
+    /**
+     * 驼峰命令转连线命名,如：TzgWeb转Tzg-web或Tzg_web
+     * @author:  heyiwu 
+     * @param s
+     * @param s 连线符
+     * @return
+     */
+    public static String camelCaseTo(String s, char separator) {
+        if (StringUtils.isBlank(s)) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        boolean upperCase = false;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            boolean nextUpperCase = true;
+            if (i < (s.length() - 1)) {
+                nextUpperCase = Character.isUpperCase(s.charAt(i + 1));
+            }
+            if ((i >= 0) && Character.isUpperCase(c)) {
+                if (!upperCase || !nextUpperCase) {
+                    if (i > 0)
+                        sb.append(separator);
+                }
+                upperCase = true;
+            } else {
+                upperCase = false;
+            }
+            sb.append(Character.toLowerCase(c));
+        }
+        return sb.toString();
+
+    }
+
+    public static String toCamelCase(String s) {
+        return toCamelCase(s, '_');
+    }
+
+    /**
+     * 转驼峰命名,如：Tzg-web或tzg_web转TzgWeb
+     * @author:  heyiwu 
+     * @param s
+     * @param separator 分解字符
+     * @return
+     */
+    public static String toCamelCase(String s, char separator) {
+        return toCamelCase(s, separator, true);
+    }
+
+    /**
+     * 转驼峰命名
+     * @author:  heyiwu 
+     * @param s
+     * @param separator 分解字符
+     * @param firstUp 首字母是否大写
+     * @return
+     */
+    public static String toCamelCase(String s, char separator, boolean firstUp) {
+        if (StringUtils.isBlank(s)) {
+            return "";
+        }
+        int len = s.length();
+        StringBuilder sb = new StringBuilder(len);
+        for (int i = 0; i < len; i++) {
+            char c = s.charAt(i);
+            if (c == separator) {
+                if (++i < len) {
+                    sb.append(Character.toUpperCase(s.charAt(i)));
+                }
+            } else {
+                if (i == 0 && firstUp) {
+                    sb.append(Character.toUpperCase(s.charAt(i)));
+                } else {
+                    sb.append(c);
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 转驼峰命名
+     * @author:  heyiwu 
+     * @param param
+     * @param s 正则分解字符串
+     * @return
+     */
+    public static String toCamelCase(String param, String s) {
+        if (StringUtils.isBlank(param)) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder(param);
+        Matcher mc = Pattern.compile(s).matcher(param);
+        int i = 0;
+        while (mc.find()) {
+            int position = mc.end() - (i++);
+            sb.replace(position - 1, position + 1, sb.substring(position, position + 1).toUpperCase());
+        }
+        return sb.toString();
+    }
+
+    public static String camelCase(String s) {
+        return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, s);
+    }
+
+    /**
+     * 首字母转大写    
+     * @author:  heyiwu 
+     * @param s
+     * @return
+     */
+    public static String firstToUpCase(String s) {
+        if (StringUtils.isBlank(s)) {
+            return s;
+        }
+        int len = s.length();
+        return new StringBuilder(len).append(Character.toTitleCase(s.charAt(0))).append(s.substring(1)).toString();
+    }
+
+    /**
+     * 替换script字符串
+     * @param s
+     * @return
+     */
+    public static String script2Text(String s) {
+        return replaceAll(s, SCRIPTREGEX);
+    }
+
+    /**
+     * 过滤html代码
+     * @param s
+     * @return
+     */
+    public static String html2Text(String s) {
+        return replaceAll(s, HTMLREGEX);
+    }
+
+    /**
+     * 过滤样式表
+     * @param s
+     * @return
+     */
+    public static String style2Text(String s) {
+        return replaceAll(s, STYLEREGEX);
+    }
+
+    /**
+     * 替换字符串中正则匹配字符串为空 
+     * @param s
+     * @param regex
+     * @return
+     */
+    public static String replaceAll(String s, String regex) {
+        return replaceAll(s, regex, "");
+    }
+
+    /**
+     * 替换字符串中正则匹配字符串为指定字符串
+     * @param s 
+     * @param regex
+     * @param replacement
+     * @return
+     */
+    public static String replaceAll(String s, String regex, String replacement) {
+        String text = s;
+        try {
+            Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(s);
+            while (matcher.find()) {
+                //                text = s.replaceAll(matcher.group(), replacement);
+                text = matcher.replaceAll(replacement);
+            }
+        } catch (Exception e) {
+            return s;
+        }
+        return text;
+    }
+
+}

@@ -1,0 +1,87 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.tzg.ex</groupId>
+	<artifactId>tzg-ex-core</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<properties>
+		<jdk.version>1.7</jdk.version>
+		<sourceEncoding>UTF-8</sourceEncoding>
+	</properties>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>3.0.0</version>
+			</plugin>
+			<!-- compiler plugin :指定编译环境、编码 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.5</version>
+				<configuration>
+					<source>${jdk.version}</source>
+					<target>${jdk.version}</target>
+					<encoding>${sourceEncoding}</encoding>
+				</configuration>
+			</plugin>
+			<!-- java source plugin ：建议每个工程提供source jar -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<!-- 发布节点 -->
+	<distributionManagement>
+		<!-- mvn deploy -Pproduct 发布正式版本到nexus私服 -->
+		<repository>
+			<id>dev-release</id>
+			<name>dev-nexus-release</name>
+			<url>http://dev.maven.com:8081/nexus/content/repositories/releases/</url>
+		</repository>
+		<!-- mvn deploy 发布默认快照版本到nexus私服 -->
+		<snapshotRepository>
+			<id>dev-snapshot</id>
+			<name>dev-nexus-snapshot</name>
+			<url>http://dev.maven.com:8081/nexus/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+	<profiles>
+		<!-- 生产环境,调用开发环境配置,默认激活 -->
+		<profile>
+			<id>prod</id>
+			<properties>
+				<env.profile>main</env.profile>
+				<project.release.version>1.2</project.release.version>
+			</properties>
+		</profile>
+		<!-- 开发环境,默认激活(在settings.xml里配置的) mvn deploy或mvn deploy -Pdev -->
+		<profile>
+			<id>exdev</id>
+			<properties>
+				<env.profile>main</env.profile>
+				<project.release.version>1.2-SNAPSHOT</project.release.version>
+			</properties>
+		</profile>
+		<!-- 测试环境,mvn install -Ptest或mvn deploy -Ptest -->
+		<profile>
+			<id>test</id>
+			<properties>
+				<env.profile>test</env.profile>
+				<project.release.version>1.2-SNAPSHOT</project.release.version>
+			</properties>
+		</profile>
+	</profiles>
+</project>
